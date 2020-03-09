@@ -6,9 +6,9 @@ const fs = require('fs');
 const sqrtPI = Math.sqrt(Math.PI);
 
 // ----------- TO WRITE RESULT ------------//
-const filename = 'search1160_oldVersion.json';
+const filename = 'searchAll_oldVersion.json';
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
-const pathToData = path.resolve('generated/optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimize131TrainingFiles.json'); //'optimizeAllUpdated.json');//
+const pathToData = path.resolve('optimizedData/optimizeAllUpdated.json');//optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimize131TrainingFiles.json'); //'optimizeAllUpdated.json');//
 
 var info = require(pathInfo);
 var optimizedPeaks = JSON.parse(fs.readFileSync(pathToData, 'utf8'));
@@ -169,7 +169,7 @@ optimizedPeaks.forEach((op, i) => {
             ps.name === 'succinate'
           ) {
             let pathToPredictor = path.resolve(
-              path.join('src/searchFromOptPeaks', 'predictor.js')
+              path.join('src/search/prediction', 'predictor.js')
             );
             let { singletPredictor } = require(pathToPredictor);
             console.log('---------\n----------\n');
