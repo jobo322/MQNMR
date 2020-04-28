@@ -318,6 +318,8 @@ function getDistFromJ(jCoupling) {
     let delta = peaks.reduce((a, b) => a + b.x, 0) / peaks.length;
     return delta;
   }
+
+  
   
   module.exports = {
     getDistFromJ,
