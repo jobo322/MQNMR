@@ -1,6 +1,5 @@
 function getDistFromJ(jCoupling) {
     let center = -jCoupling.reduce((a, b) => a + b, 0) / 2; //@TODO check if always it is true;
-    console.log(center)
     let dist = [center];
     for (let i = 0; i < jCoupling.length; i++) {
       center += jCoupling[i];
@@ -254,10 +253,11 @@ function getDistFromJ(jCoupling) {
         if (c.deltaScore) {
           deltaScore += c.deltaScore;
         }
+        parentPort.postMessage('peak length ' +  peaks.length)
         let integral =
           (peaks.reduce((a, b) => {
             let peak = b;
-            parentPort.postMessage(peak.x + ' ' + peak.y + ' ' + peak.width)
+            parentPort.postMessage(peak.x + ' ' + peak.y + ' ' + peak.width + ' ' + peak.xL)
             return (
               peak.y * peak.width * sqrtPI * (1 - peak.xL + peak.xL * sqrtPI) + a
             );

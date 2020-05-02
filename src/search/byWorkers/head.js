@@ -2,20 +2,21 @@
 
 const path = require('path');
 const fs = require('fs');
-const { workerData } = require('worker_threads');
-
 const Random = require('random-js');
 const Pool = require('worker-threads-pool');
 
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
+// const byMetabo = require('./byMetabo/index');
+// console.log(byMetabo)
+// return
 
 let info = require(pathInfo);
 
 const maxThreads = 1;
 const maxWaiting = 4000;
 const field = 600.89;
-let subFix = 'optimizedPeaksByMetab';
-let worker = path.resolve(path.join('src', 'byWorkers', 'worker.js'));
+let subFix = 'testtest';
+let worker = path.resolve(path.join('src', 'search', 'byWorkers', 'worker.js'));
 
 //This is temporal
 // const pathToOptData = path.resolve('optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimize131TrainingFiles.json'); //'optimizeAllUpdated.json');//
@@ -66,6 +67,7 @@ for (let i = 0; i < nbSamples; ) {
   indexes.push(index);
   i++;
 }
+
 let batchSize = Math.floor(samples.length / maxThreads);
 
 let list = new Array(maxThreads).fill(0);
@@ -77,7 +79,7 @@ for (let i = 0; i < diff; i++) {
 console.log('samples.length', list[0].length);
 let toSearch = [
   'eretic',
-  //   'creatinine',
+    'creatinine',
   // 'citrate',
   //   'glycine',
   //   'dimethylamine',
@@ -88,7 +90,7 @@ let toSearch = [
   // 'succinate',
   // "alanine",
   // "taurine",
-  'lactate',
+  // 'lactate',
   // 'acetate',
   // 'ethanol'
 ];
