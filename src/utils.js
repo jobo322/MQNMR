@@ -85,8 +85,6 @@ function getDistFromJ(jCoupling) {
   }
   
   function getCandidatesByJ(peaks, signal, options) {
-    console.log('signal')
-    console.log('sinal')
     let { field } = options;
     let delta = signal.delta;
     let pattern = signal.pattern;
@@ -215,7 +213,7 @@ function getDistFromJ(jCoupling) {
   
   function getCombinationsScored(arrayOfArrays, options = {}) {
     let { eretic, sqrtPI, intPattern, parentPort } = options;
-      parentPort.postMessage('intPattern ' + JSON.stringify(intPattern));
+      // parentPort.postMessage('intPattern ' + JSON.stringify(intPattern));
     if (Object.prototype.toString.call(arrayOfArrays) !== "[object Array]") {
       throw new Error("combinations method was passed a non-array argument");
     }
@@ -249,15 +247,15 @@ function getDistFromJ(jCoupling) {
       combo.forEach((c, i, arr) => {
         let peaks = c.peaks;
         similarityPatternScore += c.score;
-        parentPort.postMessage('score ' + c.score)
+        // parentPort.postMessage('score ' + c.score)
         if (c.deltaScore) {
           deltaScore += c.deltaScore;
         }
-        parentPort.postMessage('peak length ' +  peaks.length)
+        // parentPort.postMessage('peak length ' +  peaks.length)
         let integral =
           (peaks.reduce((a, b) => {
             let peak = b;
-            parentPort.postMessage(peak.x + ' ' + peak.y + ' ' + peak.width + ' ' + peak.xL)
+            // parentPort.postMessage(peak.x + ' ' + peak.y + ' ' + peak.width + ' ' + peak.xL)
             return (
               peak.y * peak.width * sqrtPI * (1 - peak.xL + peak.xL * sqrtPI) + a
             );
@@ -267,7 +265,7 @@ function getDistFromJ(jCoupling) {
           10;
         arr[i].integral = integral;
         mean += integral;
-        parentPort.postMessage(integral)
+        // parentPort.postMessage(integral)
   
         integrals.push(integral);
       });
@@ -283,8 +281,8 @@ function getDistFromJ(jCoupling) {
       mean /= combo.length;
       let std = integrals.reduce((a, b) => Math.pow(b - mean, 2) + a, 0);
       std = Math.sqrt(std / combo.length);
-      parentPort.postMessage("mean " + mean);
-      parentPort.postMessage("std " + std);
+      // parentPort.postMessage("mean " + mean);
+      // parentPort.postMessage("std " + std);
       let less = std / mean || 0;
       let score = 1 - less;
       // if (std / mean > 0.05) continue;

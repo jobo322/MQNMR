@@ -12,10 +12,10 @@ const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
 
 let info = require(pathInfo);
 
-const maxThreads = 1;
+const maxThreads = 2;
 const maxWaiting = 4000;
 const field = 600.89;
-let subFix = 'testtest';
+let subFix = 'newByWorkers';
 let worker = path.resolve(path.join('src', 'search', 'byWorkers', 'worker.js'));
 
 //This is temporal
@@ -47,8 +47,8 @@ let toGet = [
 console.log('listSamples.length before filter', listSamples.length);
 listSamples = excludeIt(
   [
-    { include: true, list: toGet },
-    // { include: true, list: selectIt },
+    // { include: true, list: toGet },
+    { include: true, list: selectIt },
     // { include: true, list: existListAll },
   ],
   listSamples,
@@ -80,19 +80,19 @@ console.log('samples.length', list[0].length);
 let toSearch = [
   'eretic',
     'creatinine',
-  // 'citrate',
-  //   'glycine',
-  //   'dimethylamine',
-  //   'formate',
-  // 'hippurate',
-  // 'trigonelline',
-  // 'tartrate',
-  // 'succinate',
-  // "alanine",
-  // "taurine",
-  // 'lactate',
-  // 'acetate',
-  // 'ethanol'
+  'citrate',
+  'dimethylamine',
+    'glycine',
+    'formate',
+  'hippurate',
+  'trigonelline',
+  'tartrate',
+  'succinate',
+  "alanine",
+  "taurine",
+  'lactate',
+  'acetate',
+  'ethanol'
 ];
 let peakList = [];
 let rangeToOpt = peakList;
@@ -119,21 +119,21 @@ for (let i = 0; i < maxThreads; i++) {
       console.log(`started worker ${i} (pool size: ${pool.size})`);
       worker.on('exit', function() {
         console.log(`worker ${i} exited (pool size: ${pool.size})`);
-        // if (pool.size === 0) {
-        //   const pathToData = path.resolve(".");
-        //   let listSamples = fs.readdirSync(pathToData);
-        //   let samples = listSamples.filter((s) =>
-        //     s.match(/optimizedPeaksByMetab.*/)
-        //   );
-        //   let result = "[";
-        //   samples.forEach((s) => {
-        //     let peaks = fs.readFileSync(path.join(pathToData, s), "utf8");
-        //     result = result.concat(peaks);
-        //   });
+        if (pool.size === 0) {
+          const pathToData = path.resolve(".");
+          let listSamples = fs.readdirSync(pathToData);
+          let samples = listSamples.filter((s) =>
+            s.match(/newByWorkers.*/)
+          );
+          let result = "[";
+          samples.forEach((s) => {
+            let peaks = fs.readFileSync(path.join(pathToData, s), "utf8");
+            result = result.concat(peaks);
+          });
 
-        //   result = result.slice(0, result.length - 1).concat("]");
-        //   fs.writeFileSync('optimizedPeaksByMetab.json', result);
-        // }
+          result = result.slice(0, result.length - 1).concat("]");
+          fs.writeFileSync('newByWorkers.json', result);
+        }
       });
     },
   );

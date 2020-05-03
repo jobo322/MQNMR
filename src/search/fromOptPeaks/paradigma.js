@@ -6,9 +6,9 @@ const fs = require('fs');
 const sqrtPI = Math.sqrt(Math.PI);
 
 // ----------- TO WRITE RESULT ------------//
-const filename = 'searchAll_oldVersion.json';
+const filename = 'test-creatine.json'//'searchAll_oldVersion131.json';
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
-const pathToData = path.resolve('optimizedData/optimizeAllUpdated.json'); //optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimize131TrainingFiles.json'); //'optimizeAllUpdated.json');//
+const pathToData = path.resolve('optimizedData/optimizeAllUpdated.json'); //optimize131TrainingFiles.json'); //optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimizeAllUpdated.json');//
 
 let info = require(pathInfo);
 let optimizedPeaks = JSON.parse(fs.readFileSync(pathToData, 'utf8'));
@@ -76,17 +76,17 @@ let toSearch = [
   'pantothenic_acid',
 ];
 
-// toSearch = [
-//   'eretic',
-//   'creatinine',
-//   'citrate',
-//   'dimethylamine',
-//   'glycine',
-//   'formate',
-//   'creatine',
-//   'succinate',
-//   "alanine",
-// ];
+toSearch = [
+  'eretic',
+  'creatinine',
+  'citrate',
+  'dimethylamine',
+  'glycine',
+  'formate',
+  'creatine',
+  'succinate',
+  "alanine",
+];
 
 peaksToSearch = peaksToSearch.filter((e) => {
   return toSearch.includes(e.name);
@@ -401,8 +401,8 @@ function getCombinations(arrayOfArrays, options = {}) {
     let std = integrals.reduce((a, b) => Math.pow(b - mean, 2) + a, 0);
     std = Math.sqrt(std / combo.length);
     let score = 1 - std / mean;
-    console.log(integrals, mean, std, std / mean);
-    // if (std / mean > 0.05) continue;
+    // console.log(integrals, mean, std, std / mean);
+    if (std / mean > 0.05) continue;
     let result = {
       signals: combo,
       meanIntegral: mean,

@@ -1,12 +1,13 @@
 'use strict';
 
 const path = require('path');
-const { getPeaks } = require('../../../utilities/utils')
+const { getPeaks, optimizePeaks } = require('../../../utilities/utils')
 const utils = require('../../../utils.js');
 const debug = false;
 module.exports = function(ps, xy, options) {
   let {
     field,
+    toExport,
     delta,
     peaksToSearch,
     parentPort,
@@ -51,7 +52,10 @@ module.exports = function(ps, xy, options) {
     }
     
     let candidates = utils.getCandidatesByJ(peaks, signal, { field });
-    
+
+    // pasar de un rango amplio o muchos rangos pequeñós para realizar la optimizacion de parametros
+    let optOptions = Object.assign({}, defaultOptions, cluster.gsdOptions);
+        
     if (pattern.length > 1) {
       candidates.forEach((_e, i, arr) => {
         arr[i].score /= pattern.length - 1;
@@ -60,6 +64,7 @@ module.exports = function(ps, xy, options) {
     
     if (candidates.length > 0) {
       if (
+        // false
         ps.name === 'glycine' ||
         ps.name === 'formate' ||
         ps.name === 'alanine' ||
@@ -69,25 +74,92 @@ module.exports = function(ps, xy, options) {
         ps.name === 'succinate'
       ) {
         let pathToPredictor = path.resolve(
-          path.join('src/search/prediction', 'predictor.js'),
+          path.join('src/search/prediction', 'predictor'),
         );
+        
         let { singletPredictor } = require(pathToPredictor);
+        
         // console.log('---------\n----------\n');
         let prediction = singletPredictor(toExport, ps.name);
+        //parentPort.postMessage(pathToPredictor)
         // console.log(prediction);
-        // console.log(candidates.map((e) => getDelta(e.peaks)));
+        //parentPort.postMessage(`prediction ${prediction}`)
         if (prediction !== null) {
           candidates.forEach((e, i, arr) => {
-            let delta = getDelta(e.peaks);
+            let delta = utils.getDelta(e.peaks);
             let score = (1 - Math.abs(delta - prediction[0])) * 10;
             arr[i].deltaScore = score;
           });
         }
+        candidates = candidates.filter(candidate => {
+          let score = candidate.deltaScore;
+          //parentPort.postMessage(`score ${Object.keys(candidate)}`)
+          return score >= 9.8
+        })
       }
-      toCombine.push(candidates);
     }
-    
-    shift.optPeaks = peaks; //It is not actually optimum values
+
+    if (pattern.length > 0) {
+
+      for(let i = 0; i < candidates.length; i++) {
+        let candPeaks = candidates[i].peaks;
+        let candPeakIndexs = candPeaks.map(e => e.index);
+        //parentPort.postMessage(`candidatesPeakIndexs ${JSON.stringify(candPeakIndexs)}`);
+        let first = candPeaks[0];
+        let last = candPeaks[candPeaks.length - 1];
+        from = first.x - first.width * 3;
+        to = last.x + last.width * 3;
+        let filteredPeaks = peaks.filter(peak => {
+          let w3 = peak.width * 3;
+          return (peak.x + w3) >= from && (peak.x - w3) <= to;
+        })
+        let optPeaks = optimizePeaks(filteredPeaks, xy.x, xy.y, optOptions);
+        
+        candidates[i].peaks = optPeaks.filter(e => candPeakIndexs.includes(e.index));
+        
+      }
+    }
+    if (pattern.length === 0) {
+      if (
+        // false &&
+        ps.name === 'glycine' ||
+        ps.name === 'formate' ||
+        ps.name === 'alanine' ||
+        ps.name === 'trigonelline' ||
+        ps.name === 'tartrate' ||
+        ps.name === 'creatine' ||
+        ps.name === 'succinate'
+      ) {
+        //parentPort.postMessage(`candidates ${candidates.length}`)
+        for(let i = 0; i < candidates.length; i++) {
+          let candPeaks = candidates[i].peaks;
+          let first = candPeaks[0];
+          let last = candPeaks[candPeaks.length - 1];
+          from = first.x - first.width * 4;
+          to = last.x + last.width * 4;
+          let filteredPeaks = peaks.filter(peak => {
+            let w3 = peak.width * 3;
+            return (peak.x + w3) >= from && (peak.x - w3) <= to;
+          })
+          let optPeaks = optimizePeaks(filteredPeaks, xy.x, xy.y, optOptions);
+          let peakIndex = candidates[i].peaks[0].index;
+          candidates[i].peaks = [optPeaks.find(e => e.index === peakIndex)];
+        }
+        //parentPort.postMessage(`candidate filtered ${candidates.length}`)
+      } else {
+        //parentPort.postMessage(`optimize ${JSON.stringify(candidates.map(e=>e.peaks[0].index))}`)
+        let optPeaks = optimizePeaks(peaks, data.x, data.y, optOptions);
+        for(let i = 0; i < candidates.length; i++) {
+          let peakIndex = candidates[i].peaks[0].index;
+          //parentPort.postMessage(`peakIndex ${peakIndex}`)
+          candidates[i].peaks = [optPeaks.find(e => e.index === peakIndex)];
+          //parentPort.postMessage(`peakIndexs ${candidates[i].peaks.length}`)
+        }
+        //parentPort.postMessage(`\n optimize2 ${JSON.stringify(optPeaks.map(e=>e.index))}`);
+      }
+    }
+    if (candidates.length > 0) toCombine.push(candidates);
+    shift.optPeaks = peaks; //It is not actually optimum values, 
     metabolite.signals.push(shift);
   });
   return { toCombine, metabolite, intPattern };
