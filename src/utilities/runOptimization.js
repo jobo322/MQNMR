@@ -7,8 +7,8 @@ module.exports = function runOptimization(xy, peaks, candidates, optOptions) {
         //parentPort.postMessage(`candidatesPeakIndexs ${JSON.stringify(candPeakIndexs)}`);
         let first = candPeaks[0];
         let last = candPeaks[candPeaks.length - 1];
-        from = first.x - 0.01; //first.width * 6;
-        to = last.x + 0.01; //last.width * 6;
+        from = first.x - first.width * 4;
+        to = last.x + last.width * 4;
         let filteredPeaks = peaks.filter(peak => {
           let w3 = peak.width * 3;
           return (peak.x + w3) >= from && (peak.x - w3) <= to;

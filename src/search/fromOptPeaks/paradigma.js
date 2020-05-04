@@ -6,32 +6,32 @@ const fs = require('fs');
 const sqrtPI = Math.sqrt(Math.PI);
 
 // ----------- TO WRITE RESULT ------------//
-const filename = 'searchAll_oldVersion.json';
+const filename = 'test-creatine.json'//'searchAll_oldVersion131.json';
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
-const pathToData = path.resolve('optimizedData/optimizeAllUpdated.json');//optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimize131TrainingFiles.json'); //'optimizeAllUpdated.json');//
+const pathToData = path.resolve('optimizedData/optimizeAllUpdated.json'); //optimize131TrainingFiles.json'); //optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimizeAllUpdated.json');//
 
-var info = require(pathInfo);
-var optimizedPeaks = JSON.parse(fs.readFileSync(pathToData, 'utf8'));
+let info = require(pathInfo);
+let optimizedPeaks = JSON.parse(fs.readFileSync(pathToData, 'utf8'));
 
-var {
+let {
   peaksToSearch,
   existList3 = [],
   existListAll = [],
   selectIt = [],
   exclusionListEretic = [],
-  exclusionListOrganic = []
+  exclusionListOrganic = [],
 } = info;
 
 let toGet = [
   //   'airwave_13_470_1',
   //   'airwave_13_430_1',
   //   'airwave_22_330_1',
-    'airwave_22_770_1',
-    // 'airwave_37_370_1',
-    // 'airwave_32_780_1',
-    // 'airwave_33_40_1',
-    'airwave_30_210_1'
-  ];
+  'airwave_22_770_1',
+  // 'airwave_37_370_1',
+  // 'airwave_32_780_1',
+  // 'airwave_33_40_1',
+  'airwave_30_210_1',
+];
 optimizedPeaks = excludeIt(
   [
     // { include: true, list: ['airwave_27_510_1'] },
@@ -42,13 +42,13 @@ optimizedPeaks = excludeIt(
     // { include: false, list: exclusionListEretic },
     // { include: false, list: exclusionListOrganic }
   ],
-  optimizedPeaks
+  optimizedPeaks,
 );
 // console.log(optimizedPeaks.length);
 // return
 // fs.writeFileSync('optimizeSet131.json', JSON.stringify(optimizedPeaks));
 
-var toSearch = [
+let toSearch = [
   'eretic',
   'creatinine',
   'citrate',
@@ -73,22 +73,22 @@ var toSearch = [
   'trigonelline',
   'acetate',
   'trimethylamine',
-  'pantothenic_acid'
+  'pantothenic_acid',
 ];
 
-// toSearch = [
-//   'eretic',
-//   'creatinine',
-//   'citrate',
-//   'dimethylamine',
-//   'glycine',
-//   'formate',
-//   'creatine',
-//   'succinate',
-//   "alanine",
-// ];
+toSearch = [
+  'eretic',
+  'creatinine',
+  'citrate',
+  'dimethylamine',
+  'glycine',
+  'formate',
+  'creatine',
+  'succinate',
+  "alanine",
+];
 
-peaksToSearch = peaksToSearch.filter(e => {
+peaksToSearch = peaksToSearch.filter((e) => {
   return toSearch.includes(e.name);
 });
 
@@ -124,7 +124,7 @@ optimizedPeaks.forEach((op, i) => {
         return;
       }
 
-      let peaks = optPeaks.peaks.filter(e => e.x < to && e.x > from);
+      let peaks = optPeaks.peaks.filter((e) => e.x < to && e.x > from);
       if (!peaks.length) {
         console.log(peaks);
         console.log('sin picos ', toExport.sampleid);
@@ -138,7 +138,7 @@ optimizedPeaks.forEach((op, i) => {
         }
         let pattern = signal.pattern;
         let jCoupling = signal.jCoupling.map((j) => j / field);
-        var candidates = [];
+        let candidates = [];
         let options = { delta, range: signal.range, nH: signal.integral };
         peaks.forEach((peak, pp, arr) => {
           let cand = getCandidates(
@@ -146,19 +146,19 @@ optimizedPeaks.forEach((op, i) => {
             jCoupling,
             pattern,
             [{ indexs: [pp], score: 0 }],
-            options
+            options,
           ); // generate combinations from J
           if (cand !== null) candidates = candidates.concat(cand);
         });
-        console.log('candidates', candidates)
+        console.log('candidates', candidates);
         // mover dentro de la funcion getCandidates
         if (pattern.length > 1) {
           candidates.forEach((_e, i, arr) => {
             arr[i].score /= pattern.length - 1;
           });
         }
-        
-        if (candidates.length > 0) {  
+
+        if (candidates.length > 0) {
           if (
             ps.name === 'glycine' ||
             ps.name === 'formate' ||
@@ -169,13 +169,13 @@ optimizedPeaks.forEach((op, i) => {
             ps.name === 'succinate'
           ) {
             let pathToPredictor = path.resolve(
-              path.join('src/search/prediction', 'predictor.js')
+              path.join('src/search/prediction', 'predictor.js'),
             );
             let { singletPredictor } = require(pathToPredictor);
             console.log('---------\n----------\n');
             let prediction = singletPredictor(toExport, ps.name);
             console.log(prediction);
-            console.log(candidates.map(e => getDelta(e.peaks)));
+            console.log(candidates.map((e) => getDelta(e.peaks)));
             if (prediction !== null) {
               candidates.forEach((e, i, arr) => {
                 let delta = getDelta(e.peaks);
@@ -204,7 +204,7 @@ optimizedPeaks.forEach((op, i) => {
         shift = Object.assign({}, shift, {
           integral,
           selected: selectedPeaks,
-          optPeaks: peaks
+          optPeaks: peaks,
         }); // @TODO
       }
       metabolite.signals.push(shift);
@@ -216,18 +216,18 @@ optimizedPeaks.forEach((op, i) => {
       let finalCandidates = checkIntegrals(optData, ps.peaks, toCombine, {
         sqrtPI,
         eretic: eretic.meanIntegral,
-        intPattern
+        intPattern,
       });
       if (finalCandidates.length === 0) {
         console.log(`sin candidatos ${op.sampleID}  ${i}`);
       } else {
         selectedPeaks = [];
         finalCandidates.sort((a, b) => b.score - a.score);
-        
+
         finalCandidates[0].signals.forEach((c, i, arr) => {
           let peaks = c.peaks;
           let delta = c.delta;
-          let shift = metabolite.signals.find(e => e.delta === delta);
+          let shift = metabolite.signals.find((e) => e.delta === delta);
           shift.selected = peaks;
           shift.integral = c.integral;
           shift.range = c.range;
@@ -264,19 +264,19 @@ function getCandidates(peaks, jcp, pattern, candidates, options = {}) {
   if (candidates.length === 0) return null;
   if (
     pattern.length === 0 ||
-    candidates.some(e => e.indexs.length === pattern.length)
+    candidates.some((e) => e.indexs.length === pattern.length)
   ) {
     let { delta, range, nH } = options;
-    return candidates.map(cand => {
+    return candidates.map((cand) => {
       let indexs = cand.indexs;
       let toExport = {
-        peaks: indexs.map(index => {
+        peaks: indexs.map((index) => {
           return peaks[index];
         }),
         score: cand.score,
         delta,
         range,
-        nH
+        nH,
       };
       return toExport;
     });
@@ -311,7 +311,7 @@ function getCandidates(peaks, jcp, pattern, candidates, options = {}) {
             'pattern,',
             pattern[iPattern],
             pattern[iPattern + 1],
-            RIP
+            RIP,
           );
         }
         if (debug) {
@@ -345,23 +345,23 @@ function getCombinations(arrayOfArrays, options = {}) {
   let combinations = [];
   let numOfCombos = arrayOfArrays.length ? 1 : 0;
   let arrayOfArraysLength = arrayOfArrays.length;
-  for (var n = 0; n < arrayOfArraysLength; ++n) {
+  for (let n = 0; n < arrayOfArraysLength; ++n) {
     if (Object.prototype.toString.call(arrayOfArrays[n]) !== '[object Array]') {
       throw new Error('combinations method was passed a non-array argument');
     }
     numOfCombos = numOfCombos * arrayOfArrays[n].length;
   }
 
-  for (var x = 0; x < numOfCombos; ++x) {
+  for (let x = 0; x < numOfCombos; ++x) {
     let carry = x;
     let comboKeys = [];
     let combo = [];
 
-    for (var i = 0; i < arrayOfArraysLength; ++i) {
+    for (let i = 0; i < arrayOfArraysLength; ++i) {
       comboKeys[i] = carry % arrayOfArrays[i].length;
       carry = Math.floor(carry / arrayOfArrays[i].length);
     }
-    for (var i = 0; i < comboKeys.length; ++i) {
+    for (let i = 0; i < comboKeys.length; ++i) {
       combo.push(arrayOfArrays[i][comboKeys[i]]);
     }
     let integrals = [];
@@ -401,15 +401,15 @@ function getCombinations(arrayOfArrays, options = {}) {
     let std = integrals.reduce((a, b) => Math.pow(b - mean, 2) + a, 0);
     std = Math.sqrt(std / combo.length);
     let score = 1 - std / mean;
-    console.log(integrals, mean, std, std/mean)
-    // if (std / mean > 0.05) continue;
+    // console.log(integrals, mean, std, std / mean);
+    if (std / mean > 0.05) continue;
     let result = {
       signals: combo,
       meanIntegral: mean,
       similarityPatternScore,
       deltaScore,
       IntegralScore: score,
-      score: score * 0.1 + similarityPatternScore * 0.1 + deltaScore * 0.8
+      score: score * 0.1 + similarityPatternScore * 0.1 + deltaScore * 0.8,
     };
     // combo.meanIntegral = mean;
     // combo.similarityPatternScore = similarityPatternScore;

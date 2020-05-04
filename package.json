@@ -46,8 +46,9 @@
   },
   "dependencies": {
     "jcampconverter": "^4.1.0",
+    "ml-curve-fitting": "0.0.7",
     "ml-gsd": "^3.0.1",
-    "ml-optimize-lorentzian": "^0.1.4",
+    "ml-matrix": "^2.0.0",
     "ml-regression-multivariate-linear": "^2.0.3",
     "ml-spectra-processing": "^2.0.1",
     "random-js": "^2.1.0",
