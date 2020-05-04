@@ -2,20 +2,21 @@
 
 const path = require('path');
 const fs = require('fs');
-const { workerData } = require('worker_threads');
-
 const Random = require('random-js');
 const Pool = require('worker-threads-pool');
 
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
+// const byMetabo = require('./byMetabo/index');
+// console.log(byMetabo)
+// return
 
 let info = require(pathInfo);
 
-const maxThreads = 1;
+const maxThreads = 2;
 const maxWaiting = 4000;
 const field = 600.89;
-let subFix = 'optimizedPeaksByMetab';
-let worker = path.resolve(path.join('src', 'byWorkers', 'worker.js'));
+let subFix = 'newByWorkers';
+let worker = path.resolve(path.join('src', 'search', 'byWorkers', 'worker.js'));
 
 //This is temporal
 // const pathToOptData = path.resolve('optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimize131TrainingFiles.json'); //'optimizeAllUpdated.json');//
@@ -46,8 +47,8 @@ let toGet = [
 console.log('listSamples.length before filter', listSamples.length);
 listSamples = excludeIt(
   [
-    { include: true, list: toGet },
-    // { include: true, list: selectIt },
+    // { include: true, list: toGet },
+    { include: true, list: selectIt },
     // { include: true, list: existListAll },
   ],
   listSamples,
@@ -66,6 +67,7 @@ for (let i = 0; i < nbSamples; ) {
   indexes.push(index);
   i++;
 }
+
 let batchSize = Math.floor(samples.length / maxThreads);
 
 let list = new Array(maxThreads).fill(0);
@@ -77,20 +79,20 @@ for (let i = 0; i < diff; i++) {
 console.log('samples.length', list[0].length);
 let toSearch = [
   'eretic',
-  //   'creatinine',
-  // 'citrate',
-  //   'glycine',
-  //   'dimethylamine',
-  //   'formate',
-  // 'hippurate',
-  // 'trigonelline',
-  // 'tartrate',
-  // 'succinate',
-  // "alanine",
-  // "taurine",
+    'creatinine',
+  'citrate',
+  'dimethylamine',
+    'glycine',
+    'formate',
+  'hippurate',
+  'trigonelline',
+  'tartrate',
+  'succinate',
+  "alanine",
+  "taurine",
   'lactate',
-  // 'acetate',
-  // 'ethanol'
+  'acetate',
+  'ethanol'
 ];
 let peakList = [];
 let rangeToOpt = peakList;
@@ -117,21 +119,21 @@ for (let i = 0; i < maxThreads; i++) {
       console.log(`started worker ${i} (pool size: ${pool.size})`);
       worker.on('exit', function() {
         console.log(`worker ${i} exited (pool size: ${pool.size})`);
-        // if (pool.size === 0) {
-        //   const pathToData = path.resolve(".");
-        //   let listSamples = fs.readdirSync(pathToData);
-        //   let samples = listSamples.filter((s) =>
-        //     s.match(/optimizedPeaksByMetab.*/)
-        //   );
-        //   let result = "[";
-        //   samples.forEach((s) => {
-        //     let peaks = fs.readFileSync(path.join(pathToData, s), "utf8");
-        //     result = result.concat(peaks);
-        //   });
+        if (pool.size === 0) {
+          const pathToData = path.resolve(".");
+          let listSamples = fs.readdirSync(pathToData);
+          let samples = listSamples.filter((s) =>
+            s.match(/newByWorkers.*/)
+          );
+          let result = "[";
+          samples.forEach((s) => {
+            let peaks = fs.readFileSync(path.join(pathToData, s), "utf8");
+            result = result.concat(peaks);
+          });
 
-        //   result = result.slice(0, result.length - 1).concat("]");
-        //   fs.writeFileSync('optimizedPeaksByMetab.json', result);
-        // }
+          result = result.slice(0, result.length - 1).concat("]");
+          fs.writeFileSync('newByWorkers.json', result);
+        }
       });
     },
   );

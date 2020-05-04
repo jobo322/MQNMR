@@ -1,9 +1,11 @@
 'use strict';
-const optimize = require('ml-optimize-lorentzian');
+const optimize = require('./optimizePseudoVoigt');
+
 function optimizePeaks(peakList, x, y, options) {
   var { n = 4, fnType = 'voigt', noiseLevel = 0 } = options;
   var lastIndex = [0];
   var groups = groupPeaks(peakList, n);
+  
   var result = [];
   var sampling, error, opts;
 
@@ -16,6 +18,7 @@ function optimizePeaks(peakList, x, y, options) {
       y,
       lastIndex,
     );
+    
     if (sampling[0].length > 5) {
       error = peaks[0].width / 1000;
       opts = {
@@ -50,7 +53,7 @@ function optimizePeaks(peakList, x, y, options) {
         default:
           optPeaks = optimize.optimizePseudoVoigtSum(sampling, peaks, opts);
       }
-
+      
       let nL = optPeaks[0].length;
       let keys = ['x', 'y', 'width', 'xL'];
       for (var j = 0; j < optPeaks.length; j++) {
@@ -64,7 +67,8 @@ function optimizePeaks(peakList, x, y, options) {
       }
     }
   }
-  //   console.log(result)
+  
+      
   return result;
 }
 
