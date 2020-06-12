@@ -1,12 +1,14 @@
 'use strict';
 
 const path = require('path');
+
 const {
   getPeaks,
   optimizePeaks,
   runOptimization,
 } = require('../../../utilities/utils');
 const utils = require('../../../utils.js');
+
 const debug = false;
 module.exports = function(ps, xy, options) {
   let {
@@ -25,7 +27,7 @@ module.exports = function(ps, xy, options) {
   let optPeaks;
 
   ps.peaks.forEach((cluster) => {
-    let delta = cluster.delta;
+    delta = cluster.delta;
     let signal = ps.toSearch.find((e) => e.delta === delta);
     if (!signal) return;
     intPattern.push(signal.integral); // part of checkIntegral filter
@@ -88,7 +90,7 @@ module.exports = function(ps, xy, options) {
         //parentPort.postMessage(`prediction ${prediction}`)
         if (prediction !== null) {
           candidates.forEach((e, i, arr) => {
-            let delta = utils.getDelta(e.peaks);
+            delta = utils.getDelta(e.peaks);
             let score = (1 - Math.abs(delta - prediction[0])) * 10;
             arr[i].deltaScore = score;
           });
@@ -115,7 +117,7 @@ module.exports = function(ps, xy, options) {
       candidates = runOptimization(xy, peaks, candidates, optOptions);
     } else {
       //parentPort.postMessage(`optimize ${JSON.stringify(candidates.map(e=>e.peaks[0].index))}`)
-      let optPeaks = optimizePeaks(peaks, data.x, data.y, optOptions);
+      optPeaks = optimizePeaks(peaks, data.x, data.y, optOptions);
       for (let i = 0; i < candidates.length; i++) {
         let peakIndex = candidates[i].peaks[0].index;
         //parentPort.postMessage(`peakIndex ${peakIndex}`)

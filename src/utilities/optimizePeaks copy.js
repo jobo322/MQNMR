@@ -1,7 +1,9 @@
 'use strict';
 
-const optimize = require('./optimizePseudoVoigt');
+const { parentPort } = require('worker_threads');
 
+const optimize = require('./optimizePseudoVoigt');
+// const optimize = require('ml-optimize-lorentzian');
 function optimizePeaks(peakList, x, y, options) {
   let { n = 4, fnType = 'voigt', noiseLevel = 0 } = options;
   let lastIndex = [0];
@@ -37,20 +39,39 @@ function optimizePeaks(peakList, x, y, options) {
         ],
         noiseLevel,
       };
+      opts = { maxIterations: 200 };
       let optPeaks = [];
       switch (fnType) {
+        case 'gaussian':
+          optPeaks = optimize.optimizeGaussianSum(sampling, peaks, opts);
+          break;
+        case 'lorentzian':
+          optPeaks = optimize.optimizeLorentzianSum(sampling, peaks, opts);
+          break;
         case 'voigt':
-          optPeaks = optimize.optimizePseudoVoigtSum(sampling, peaks, opts);
+          optPeaks = optimize.optimizeGaussianLorentzianSum(
+            sampling,
+            peaks,
+            opts,
+          );
           break;
         default:
-          optPeaks = optimize.optimizePseudoVoigtSum(sampling, peaks, opts);
+          optPeaks = optimize.optimizeGaussianLorentzianSum(
+            sampling,
+            peaks,
+            opts,
+          );
       }
+
+      optPeaks = optPeaks.map((e) => e.parameters);
+      // parentPort.postMessage(`sampling ${JSON.stringify(optPeaks)}`);
       let nL = optPeaks[0].length;
       let keys = ['x', 'y', 'width', 'xL'];
       for (let j = 0; j < optPeaks.length; j++) {
         let toPush = {};
         for (let k = 0; k < nL; k++) {
-          toPush[keys[k]] = optPeaks[j][k][0];
+          // console.log(optPeaks[j][k])
+          toPush[keys[k]] = optPeaks[j][k];
         }
         toPush.index = peaks[j].index;
         result.push(toPush);
@@ -91,7 +112,7 @@ function groupPeaks(peakList, nL) {
       ];
     } else {
       groups.push({ limits: limits, group: group });
-      // let optmimalPeak = fitSpectrum(group,limits,spectrum);
+      // var optmimalPeak = fitSpectrum(group,limits,spectrum);
       group = [peakList[i]];
       limits = [peakList[i].x, nL * peakList[i].width];
     }

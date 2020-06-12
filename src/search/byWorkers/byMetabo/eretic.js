@@ -8,9 +8,9 @@ module.exports = function(ps, xy, options) {
   let signal = ps.toSearch.find((e) => e.delta === delta);
   if (!signal) return;
   let shift = { delta, nH: signal.integral, selected: [], integral: -0.1 };
-  
+
   let { peakList, data } = getPeaks(xy, cluster, options);
-  
+
   let optOptions = Object.assign({}, defaultOptions, cluster.gsdOptions);
   let optPeaks = optimizePeaks(peakList, data.x, data.y, optOptions);
   let selectedPeaks = ps.callback(optPeaks);
@@ -23,9 +23,9 @@ module.exports = function(ps, xy, options) {
     }, 0) / ps.peaks[0].integral;
 
   shift = Object.assign({}, shift, {
-      integral,
-      selected: selectedPeaks,
-      optPeaks,
-    });
+    integral,
+    selected: selectedPeaks,
+    optPeaks,
+  });
   return { metabolite: { signals: [shift] } };
 };

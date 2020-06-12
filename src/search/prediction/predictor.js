@@ -1,7 +1,8 @@
 'use strict';
 
-const MLR = require('ml-regression-multivariate-linear');
 const { parentPort, workerData } = require('worker_threads');
+
+const MLR = require('ml-regression-multivariate-linear');
 // El orden de entrada
 const models = {
   creatine: {
@@ -686,14 +687,13 @@ const signalsReporter = {
 };
 module.exports.signalsReporter = signalsReporter;
 module.exports.singletPredictor = function(state, name) {
-  
   let reporters = signalsReporter[name];
   let model = models[name];
-  
+
   let xValues = reporters.map((r) => {
     return getDelta(state, r);
   });
- 
+
   if (xValues.some((e) => e === null)) {
     return null;
   }
@@ -706,7 +706,7 @@ function getDelta(state, reporter) {
   let metabolite = state[reporter.name];
   if (!metabolite) return null;
   let signal = metabolite.signals.find((me) => me.delta === reporter.delta);
-  
+
   if (!signal) return null;
   // parentPort.postMessage(`reporter ${reporter.name}`)
   // parentPort.postMessage(`reporter ${signal.selected.length}`)

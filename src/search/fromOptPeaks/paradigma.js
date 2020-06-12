@@ -6,7 +6,7 @@ const fs = require('fs');
 const sqrtPI = Math.sqrt(Math.PI);
 
 // ----------- TO WRITE RESULT ------------//
-const filename = 'test-creatine.json'//'searchAll_oldVersion131.json';
+const filename = 'test-creatine.json'; //'searchAll_oldVersion131.json';
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
 const pathToData = path.resolve('optimizedData/optimizeAllUpdated.json'); //optimize131TrainingFiles.json'); //optimizeSet1160Updated.json');//'optimizeSet131.json')//'optimizeAllUpdated.json');//
 
@@ -85,7 +85,7 @@ toSearch = [
   'formate',
   'creatine',
   'succinate',
-  "alanine",
+  'alanine',
 ];
 
 peaksToSearch = peaksToSearch.filter((e) => {

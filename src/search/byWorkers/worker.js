@@ -1,11 +1,15 @@
-const { parentPort, workerData } = require('worker_threads');
+'use strict';
 
+const { parentPort, workerData } = require('worker_threads');
 const path = require('path');
 const fs = require('fs');
-const byMetabo = require('./byMetabo/index');
 
 const converter = require('jcampconverter');
+
 const utils = require('../../utils');
+
+const byMetabo = require('./byMetabo/index');
+
 const { getCombinationsScored } = utils;
 
 const defaultOptions = {
@@ -38,16 +42,18 @@ let filteredPeaksToSearch = peaksToSearch.filter((e) => {
   return toSearch.includes(e.name);
 });
 
-let debug = false;
-let first = true;
-let filename = subFix + index + '.json';
+let filename = `${subFix + index}.json`;
 parentPort.postMessage(`sample length ${samples.length}`);
 //parentPort.postMessage(`name ${filename}`)
+
+//loop over partial list of samples assigned to the worker
 for (let i = 0; i < samples.length; i++) {
   parentPort.postMessage(`--------------- ${String(index)} - ${i}`);
+
   let sample = samples[i];
   let entry = sample.replace(/\.[a-z]*/g, '');
   parentPort.postMessage(entry);
+
   let pathToJcamp = path.join(pathToData, sample);
   let jcamp = fs.readFileSync(pathToJcamp, 'utf8');
   let spectrum = converter.convert(jcamp, { xy: true });
@@ -57,12 +63,12 @@ for (let i = 0; i < samples.length; i++) {
     xy.y = xy.y.reverse();
   }
   //parentPort.postMessage(xy.x.length);
-  let toExport = { sampleid: entry };
-  filteredPeaksToSearch.forEach((ps) => {
-    // parentPort.postMessage(ps.name);
-    let integral = 0;
 
-    let { metabolite, toCombine, intPattern } = 
+  let toExport = { sampleid: entry };
+  for (let ii = 0; ii < filteredPeaksToSearch.length; ii++) {
+    let ps = filteredPeaksToSearch[ii];
+    parentPort.postMessage(ps.name);
+    let { metabolite, toCombine, intPattern } =
       ps.name !== 'eretic'
         ? byMetabo.general(ps, xy, {
             field,
@@ -79,7 +85,7 @@ for (let i = 0; i < samples.length; i++) {
             defaultOptions,
             sqrtPI,
           });
-          // parentPort.postMessage(`toCombine ${JSON.stringify(toCombine)}`)
+    // parentPort.postMessage(`toCombine ${JSON.stringify(toCombine)}`)
     if (ps.name !== 'eretic') {
       // parentPort.postMessage(
       //   'toCombine length ' + JSON.stringify(toCombine.length),
@@ -89,7 +95,7 @@ for (let i = 0; i < samples.length; i++) {
       // );
       if (toCombine.length !== ps.toSearch.length) toCombine = [];
       let eretic = toExport.eretic;
-        // parentPort.postMessage(eretic)
+      // parentPort.postMessage(eretic)
       let finalCandidates = getCombinationsScored(toCombine, {
         sqrtPI,
         eretic: eretic.meanIntegral,
@@ -97,7 +103,9 @@ for (let i = 0; i < samples.length; i++) {
         parentPort,
       });
       if (finalCandidates.length === 0) {
-        parentPort.postMessage(`sin candidatos ${sample}:${ps.name} worker:${index}`);
+        parentPort.postMessage(
+          `sin candidatos ${sample}:${ps.name} worker:${index}`,
+        );
       } else {
         finalCandidates.sort((a, b) => b.score - a.score);
         // parentPort.postMessage('finalCandidates');
@@ -130,11 +138,8 @@ for (let i = 0; i < samples.length; i++) {
     toExport[ps.name] = metabolite;
     // parentPort.postMessage('metabolites');
     // parentPort.postMessage(JSON.stringify(toExport));
-  });
-  fs.appendFileSync(
-    filename,
-    `${JSON.stringify(toExport)},`,
-  );
+  }
+  fs.appendFileSync(filename, `${JSON.stringify(toExport)},`);
   // if (Object.keys(toExport).length < 3) {
   //   if (i === samples.length - 1) {
   //     fs.appendFileSync(filename, ']');

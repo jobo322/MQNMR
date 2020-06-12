@@ -5,7 +5,7 @@ module.exports = function getPeaks(xy, cluster, options) {
   const { defaultOptions } = options;
   let { from, to } = cluster.range || cluster;
   if (from > to) [from, to] = [to, from];
-  let reduceOptions = { from, to };  
+  let reduceOptions = { from, to, nbPoints: Number.MAX_SAFE_INTEGER };
   let data = spectraProcessing.XY.reduce(xy, reduceOptions);
   let gsdOptions = cluster.gsdOptions || {};
   gsdOptions = Object.assign({}, defaultOptions, gsdOptions);
@@ -14,6 +14,6 @@ module.exports = function getPeaks(xy, cluster, options) {
 
   return {
     peakList,
-    data
+    data,
   };
 };

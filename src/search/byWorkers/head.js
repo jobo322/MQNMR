@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+
 const Random = require('random-js');
 const Pool = require('worker-threads-pool');
 
@@ -15,7 +16,7 @@ let info = require(pathInfo);
 const maxThreads = 2;
 const maxWaiting = 4000;
 const field = 600.89;
-let subFix = 'newByWorkers';
+let subFix = 'newByWorkers3';
 let worker = path.resolve(path.join('src', 'search', 'byWorkers', 'worker.js'));
 
 //This is temporal
@@ -79,20 +80,20 @@ for (let i = 0; i < diff; i++) {
 console.log('samples.length', list[0].length);
 let toSearch = [
   'eretic',
-    'creatinine',
+  // 'creatinine',
   'citrate',
-  'dimethylamine',
-    'glycine',
-    'formate',
-  'hippurate',
-  'trigonelline',
-  'tartrate',
-  'succinate',
-  "alanine",
-  "taurine",
-  'lactate',
-  'acetate',
-  'ethanol'
+  // 'dimethylamine',
+  //   'glycine',
+  //   'formate',
+  // 'hippurate',
+  // 'trigonelline',
+  // 'tartrate',
+  // 'succinate',
+  // "alanine",
+  // "taurine",
+  // 'lactate',
+  // 'acetate',
+  // 'ethanol'
 ];
 let peakList = [];
 let rangeToOpt = peakList;
@@ -120,19 +121,17 @@ for (let i = 0; i < maxThreads; i++) {
       worker.on('exit', function() {
         console.log(`worker ${i} exited (pool size: ${pool.size})`);
         if (pool.size === 0) {
-          const pathToData = path.resolve(".");
+          const pathToData = path.resolve('.');
           let listSamples = fs.readdirSync(pathToData);
-          let samples = listSamples.filter((s) =>
-            s.match(/newByWorkers.*/)
-          );
-          let result = "[";
+          let samples = listSamples.filter((s) => s.match(/newByWorkers3.*/));
+          let result = '[';
           samples.forEach((s) => {
-            let peaks = fs.readFileSync(path.join(pathToData, s), "utf8");
+            let peaks = fs.readFileSync(path.join(pathToData, s), 'utf8');
             result = result.concat(peaks);
           });
 
-          result = result.slice(0, result.length - 1).concat("]");
-          fs.writeFileSync('newByWorkers.json', result);
+          result = result.slice(0, result.length - 1).concat(']');
+          fs.writeFileSync('newByWorkers3.json', result);
         }
       });
     },
