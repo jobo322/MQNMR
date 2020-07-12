@@ -4,22 +4,28 @@ const path = require('path');
 
 const {
   getPeaks,
+  getPeaks2D,
   optimizePeaks,
   runOptimization,
+  getChemicalShift,
 } = require('../../../utilities/utils');
 const utils = require('../../../utils.js');
 
 const debug = false;
 module.exports = function(ps, xy, options) {
   let {
+    entry,
     field,
     toExport,
+    use2D,
     delta,
     peaksToSearch,
     parentPort,
     defaultOptions,
     sqrtPI,
+    zMatrix,
   } = options;
+  parentPort.postMessage('general');
   let toCombine = [];
   let intPattern = [];
   let metabolite = { signals: [] };
@@ -57,14 +63,39 @@ module.exports = function(ps, xy, options) {
 
     let candidates = utils.getCandidatesByJ(peaks, signal, { field });
 
-    // pasar de un rango amplio o muchos rangos pequeñós para realizar la optimizacion de parametros
+    if (use2D) {
+      let { jRes, data2D } = getPeaks2D(zMatrix, cluster, {
+        isHomoNuclear: true,
+        nucleus: ['1h', '1h'],
+        observeFrequencies: [600, 600],
+        toleranceY: 0.01,
+        toleranceX: 5,
+        thresholdFactor: 0.5,
+      });
+      parentPort.postMessage(`${data2D.minX}, ${data2D.maxX}`);
+      parentPort.postMessage(
+        jRes.map((s) => `delta ${s.deltaX.toFixed(5)} len ${s.signals.length}`),
+      );
+      for (let i = 0; i < candidates.length; i++) {
+        let candidate = candidates[i];
+        parentPort.postMessage(candidate.peaks);
+        let cs = getChemicalShift(candidate.peaks);
+        parentPort.postMessage(cs);
+        let possibleSignals = jRes.filter((s) => {
+          return Math.abs(s.deltaX - cs) <= 0.007;
+        });
+        parentPort.postMessage(possibleSignals.map((e) => e.deltaX));
+      }
+    }
+
+    // // pasar de un rango amplio o muchos rangos pequeñós para realizar la optimizacion de parametros
     let optOptions = Object.assign({}, defaultOptions, cluster.gsdOptions);
 
-    if (pattern.length > 1) {
-      candidates.forEach((_e, i, arr) => {
-        arr[i].score /= pattern.length - 1;
-      });
-    }
+    // if (pattern.length > 1) { // creo que no es necesario porque ya el score es symRank
+    //   candidates.forEach((_e, i, arr) => {
+    //     arr[i].score /= pattern.length - 1;
+    //   });
+    // }
 
     if (candidates.length > 0) {
       if (

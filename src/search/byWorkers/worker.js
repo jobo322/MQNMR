@@ -3,6 +3,8 @@
 const { parentPort, workerData } = require('worker_threads');
 const path = require('path');
 const fs = require('fs');
+const { writeFileSync } = require('fs');
+const { join } = require('path');
 
 const converter = require('jcampconverter');
 
@@ -30,10 +32,10 @@ let {
   pathToData,
   pathInfo,
   toSearch,
-  rangeToOpt,
   sqrtPI,
   field,
   subFix,
+  use2D,
 } = workerData;
 
 let info = require(pathInfo);
@@ -44,7 +46,7 @@ let filteredPeaksToSearch = peaksToSearch.filter((e) => {
 
 let filename = `${subFix + index}.json`;
 parentPort.postMessage(`sample length ${samples.length}`);
-//parentPort.postMessage(`name ${filename}`)
+parentPort.postMessage(`name ${filename}`);
 
 //loop over partial list of samples assigned to the worker
 for (let i = 0; i < samples.length; i++) {
@@ -62,7 +64,30 @@ for (let i = 0; i < samples.length; i++) {
     xy.x = xy.x.reverse();
     xy.y = xy.y.reverse();
   }
-  //parentPort.postMessage(xy.x.length);
+
+  let zMatrix;
+  if (use2D) {
+    let number =
+      parseInt(sample.replace(/\w+\-\w+\-(\w+)\-\w+/g, '$1'), 10) + 1;
+    pathToJcamp = path.join(
+      pathToData,
+      sample.replace(/(\w+\-\w+\-)(\w+)(\-\w+)/g, `$1${number}$3`),
+    );
+    let jcamp2D = fs.readFileSync(pathToJcamp, 'utf8');
+    spectrum = converter.convert(jcamp2D, {
+      noContour: true,
+      xy: true,
+      keepRecordsRegExp: /.*/,
+    });
+    zMatrix = spectrum.minMax;
+
+    // writeFileSync(
+    //   join(sample + '.json'),
+    //   JSON.stringify(zMatrix, null, 2),
+    //   'utf8',
+    // );
+  }
+  // parentPort.postMessage(zMatrix);
 
   let toExport = { sampleid: entry };
   for (let ii = 0; ii < filteredPeaksToSearch.length; ii++) {
@@ -71,12 +96,15 @@ for (let i = 0; i < samples.length; i++) {
     let { metabolite, toCombine, intPattern } =
       ps.name !== 'eretic'
         ? byMetabo.general(ps, xy, {
+            entry,
             field,
             toExport,
+            use2D,
             peaksToSearch,
             parentPort,
             defaultOptions,
             sqrtPI,
+            zMatrix,
           })
         : byMetabo.eretic(ps, xy, {
             field,
@@ -118,9 +146,9 @@ for (let i = 0; i < samples.length; i++) {
         // parentPort.postMessage(
         //   JSON.stringify(finalCandidates.map((a) => a.similarityPatternScore)),
         // );
-        let index = 0;
-        index = index >= finalCandidates.length ? 0 : index;
-        finalCandidates[index].signals.forEach((c) => {
+        let indexCand = 0;
+        indexCand = indexCand >= finalCandidates.length ? 0 : indexCand;
+        finalCandidates[indexCand].signals.forEach((c) => {
           let peaks = c.peaks;
           let delta = c.delta;
           let shift = metabolite.signals.find((e) => e.delta === delta);
@@ -130,7 +158,7 @@ for (let i = 0; i < samples.length; i++) {
           shift.nH = c.nH;
           shift.optPeaks = c.optPeaks;
         });
-        metabolite.meanIntegral = finalCandidates[index].meanIntegral;
+        metabolite.meanIntegral = finalCandidates[indexCand].meanIntegral;
       }
     } else {
       metabolite.meanIntegral = metabolite.signals[0].integral;

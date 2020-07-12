@@ -43,13 +43,13 @@ let toGet = [
   // 'airwave_37_370_1',
   // 'airwave_32_780_1',
   // 'airwave_33_40_1',
-  'airwave_30_210_1',
+  // 'airwave_30_210_1',
 ];
 console.log('listSamples.length before filter', listSamples.length);
 listSamples = excludeIt(
   [
-    // { include: true, list: toGet },
-    { include: true, list: selectIt },
+    { include: true, list: toGet },
+    // { include: true, list: selectIt },
     // { include: true, list: existListAll },
   ],
   listSamples,
@@ -105,6 +105,7 @@ for (let i = 0; i < maxThreads; i++) {
       workerData: {
         index: i,
         pathToData,
+        use2D: true,
         sqrtPI,
         field,
         pathInfo,
@@ -131,7 +132,7 @@ for (let i = 0; i < maxThreads; i++) {
           });
 
           result = result.slice(0, result.length - 1).concat(']');
-          fs.writeFileSync('newByWorkers3.json', result);
+          fs.writeFileSync(`${subFix}.json`, result);
         }
       });
     },
