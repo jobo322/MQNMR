@@ -51,6 +51,7 @@
     "ml-matrix": "^2.0.0",
     "ml-regression-multivariate-linear": "^2.0.3",
     "ml-spectra-processing": "^2.0.1",
+    "nmr-processing": "^0.2.3",
     "random-js": "^2.1.0",
     "worker-threads-pool": "^2.0.0"
   }

@@ -1,3 +1,5 @@
+'use strict';
+
 const spectraProcessing = require('ml-spectra-processing');
 const { gsd } = require('ml-gsd');
 
