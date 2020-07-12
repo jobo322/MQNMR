@@ -1,5 +1,7 @@
 'use strict';
 
+const { getChemicalShift } = require('./utilities/utils');
+
 function getDistFromJ(jCoupling) {
   let center = -jCoupling.reduce((a, b) => a + b, 0) / 2; //@TODO check if always it is true;
   let dist = [center];
@@ -119,11 +121,11 @@ function getCandidateByJ(peaks, jcp, pattern, candidates, options = {}) {
         peaks: indexs.map((index) => {
           return peaks[index];
         }),
-        score: cand.score,
         delta,
         range,
         nH,
       };
+      toExport.score = symRank(toExport.peaks);
       return toExport;
     });
   }
@@ -309,6 +311,31 @@ function checkIntegrals(expPeaks, toAssignPeaks, toCombine, options) {
 function getDelta(peaks) {
   let delta = peaks.reduce((a, b) => a + b.x, 0) / peaks.length;
   return delta;
+}
+
+function symRank(peaks) {
+  let symFactor = 0;
+  let weight = 0;
+  let cs = getChemicalShift(peaks);
+  if (peaks.length > 1) {
+    for (let i = Math.ceil(peaks.length / 2) - 1; i >= 0; i--) {
+      symFactor +=
+        ((3 +
+          Math.min(
+            Math.abs(peaks[i].x - cs),
+            Math.abs(peaks[peaks.length - 1 - i].x - cs),
+          )) /
+          (3 +
+            Math.max(
+              Math.abs(peaks[i].x - cs),
+              Math.abs(peaks[peaks.length - 1 - i].x - cs),
+            ))) *
+        peaks[i].y;
+      weight += peaks[i].y;
+    }
+    symFactor /= weight;
+    return symFactor;
+  }
 }
 
 module.exports = {
