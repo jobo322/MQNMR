@@ -1,7 +1,7 @@
-const spectraProcessing = require('ml-spectra-processing');
 const { gsd } = require('ml-gsd');
+const spectraProcessing = require('ml-spectra-processing');
 
-module.exports = function getPeaks(xy, cluster, options) {
+function getPeaks(xy, cluster, options) {
   const { defaultOptions } = options;
   let { from, to } = cluster.range || cluster;
   if (from > to) [from, to] = [to, from];
@@ -16,4 +16,6 @@ module.exports = function getPeaks(xy, cluster, options) {
     peakList,
     data,
   };
-};
+}
+
+module.exports = getPeaks;

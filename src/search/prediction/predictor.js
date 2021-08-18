@@ -686,7 +686,7 @@ const signalsReporter = {
   ],
 };
 module.exports.signalsReporter = signalsReporter;
-module.exports.singletPredictor = function(state, name) {
+module.exports.singletPredictor = function (state, name) {
   let reporters = signalsReporter[name];
   let model = models[name];
 

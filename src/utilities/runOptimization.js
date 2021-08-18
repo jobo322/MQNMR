@@ -2,7 +2,7 @@
 
 const optimizePeaks = require('./optimizePeaks');
 
-module.exports = function runOptimization(xy, peaks, candidates, optOptions) {
+function runOptimization(xy, peaks, candidates, optOptions) {
   for (let i = 0; i < candidates.length; i++) {
     let candPeaks = candidates[i].peaks;
     let candPeakIndexs = candPeaks.map((e) => e.index);
@@ -25,3 +25,5 @@ module.exports = function runOptimization(xy, peaks, candidates, optOptions) {
 
   return candidates;
 };
+
+module.exports = runOptimization;
