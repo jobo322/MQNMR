@@ -1,19 +1,16 @@
 'use strict';
 
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 
 const Random = require('random-js');
 const Pool = require('worker-threads-pool');
 
 const pathInfo = path.resolve(path.join('data', 'infoLocalHMDB.js'));
-// const byMetabo = require('./byMetabo/index');
-// console.log(byMetabo)
-// return
 
 let info = require(pathInfo);
 
-const maxThreads = 2;
+const maxThreads = 5;
 const maxWaiting = 4000;
 const field = 600.89;
 let subFix = 'newByWorkers3';
@@ -45,6 +42,7 @@ let toGet = [
   // 'airwave_33_40_1',
   'airwave_30_210_1',
 ];
+
 console.log('listSamples.length before filter', listSamples.length);
 listSamples = excludeIt(
   [
@@ -80,20 +78,20 @@ for (let i = 0; i < diff; i++) {
 console.log('samples.length', list[0].length);
 let toSearch = [
   'eretic',
-  // 'creatinine',
+  'creatinine',
   'citrate',
-  // 'dimethylamine',
-  //   'glycine',
-  //   'formate',
-  // 'hippurate',
-  // 'trigonelline',
-  // 'tartrate',
-  // 'succinate',
-  // "alanine",
-  // "taurine",
-  // 'lactate',
-  // 'acetate',
-  // 'ethanol'
+  'dimethylamine',
+    'glycine',
+    'formate',
+  'hippurate',
+  'trigonelline',
+  'tartrate',
+  'succinate',
+  "alanine",
+  "taurine",
+  'lactate',
+  'acetate',
+  'ethanol'
 ];
 let peakList = [];
 let rangeToOpt = peakList;
@@ -114,11 +112,11 @@ for (let i = 0; i < maxThreads; i++) {
         subFix,
       },
     },
-    function(err, worker) {
+    function (err, worker) {
       if (err) throw err;
       worker.on('message', (data) => console.log(data));
       console.log(`started worker ${i} (pool size: ${pool.size})`);
-      worker.on('exit', function() {
+      worker.on('exit', function () {
         console.log(`worker ${i} exited (pool size: ${pool.size})`);
         if (pool.size === 0) {
           const pathToData = path.resolve('.');

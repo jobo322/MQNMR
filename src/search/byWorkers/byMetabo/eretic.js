@@ -1,6 +1,7 @@
-const { getPeaks, optimizePeaks } = require('../../../utilities/utils');
+const getPeaks = require('../../../utilities/getPeaks');
+const optimizePeaks = require('../../../utilities/optimizePeaks');
 
-module.exports = function(ps, xy, options) {
+module.exports = function (ps, xy, options) {
   let { sqrtPI, defaultOptions } = options;
 
   let cluster = ps.peaks[0];

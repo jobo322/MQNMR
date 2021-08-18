@@ -1,7 +1,7 @@
 'use strict';
 
-const Matrix = require('ml-matrix');
 const LM = require('ml-curve-fitting');
+const Matrix = require('ml-matrix');
 
 function optimizePseudoVoigtSum(xy, group, options = {}) {
   let {

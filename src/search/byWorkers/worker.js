@@ -1,16 +1,13 @@
 'use strict';
 
-const { parentPort, workerData } = require('worker_threads');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const { parentPort, workerData } = require('worker_threads');
 
 const converter = require('jcampconverter');
 
-const utils = require('../../utils');
-
 const byMetabo = require('./byMetabo/index');
-
-const { getCombinationsScored } = utils;
+const getCombinationsScored = require('../../utilities/getCombinationsScored');
 
 const defaultOptions = {
   thresholdFactor: 1,
@@ -68,23 +65,32 @@ for (let i = 0; i < samples.length; i++) {
   for (let ii = 0; ii < filteredPeaksToSearch.length; ii++) {
     let ps = filteredPeaksToSearch[ii];
     parentPort.postMessage(ps.name);
-    let { metabolite, toCombine, intPattern } =
-      ps.name !== 'eretic'
-        ? byMetabo.general(ps, xy, {
-            field,
-            toExport,
-            peaksToSearch,
-            parentPort,
-            defaultOptions,
-            sqrtPI,
-          })
-        : byMetabo.eretic(ps, xy, {
-            field,
-            peaksToSearch,
-            parentPort,
-            defaultOptions,
-            sqrtPI,
-          });
+    let metabolite, toCombine, intPattern;
+    try {
+      const result =
+        ps.name !== 'eretic'
+          ? byMetabo.general(ps, xy, {
+              field,
+              toExport,
+              peaksToSearch,
+              parentPort,
+              defaultOptions,
+              sqrtPI,
+            })
+          : byMetabo.eretic(ps, xy, {
+              field,
+              peaksToSearch,
+              parentPort,
+              defaultOptions,
+              sqrtPI,
+            });
+      metabolite = result.metabolite;
+      toCombine = result.toCombine;
+      intPattern = result.intPattern;
+    } catch (error) {
+      parentPort.postMessage(error)
+    }
+
     // parentPort.postMessage(`toCombine ${JSON.stringify(toCombine)}`)
     if (ps.name !== 'eretic') {
       // parentPort.postMessage(
