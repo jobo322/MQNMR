@@ -1,13 +1,14 @@
+'use strict';
+
 const path = require('path');
 
 const { getCandidatesByJ } = require('../../../utilities/getCandidatesByJ');
-const { getDelta, getDistFromJ } = require('../../../utils');
+const { getDelta } = require('../../../utils');
 const getNoiseLevel = require('../../../utilities/getNoiseLevel');
 const getPeaks = require('../../../utilities/getPeaks');
 const optimizePeaks = require('../../../utilities/optimizePeaks');
 const runOptimization = require('../../../utilities/runOptimization');
 
-const debug = false;
 module.exports = function (ps, xy, options) {
   let { field, toExport, delta, parentPort, defaultOptions } = options;
   let toCombine = [];
@@ -29,7 +30,7 @@ module.exports = function (ps, xy, options) {
     });
 
     if (peakList.length === 0) {
-      parentPort.postMessage(`entry: ${entry} range: `);
+      parentPort.postMessage(`entry: ${toExport.entry} range: `);
       return;
     }
     optPeaks = peakList; //optimizePeaks(peakList, data.x, data.y, options);
@@ -55,7 +56,7 @@ module.exports = function (ps, xy, options) {
         arr[i].score /= pattern.length - 1;
       });
     }
-    
+
     if (candidates.length > 0) {
       if (
         // false
@@ -92,7 +93,7 @@ module.exports = function (ps, xy, options) {
         });
       }
     }
-    
+
     if (
       // false &&
       pattern.length > 0 ||

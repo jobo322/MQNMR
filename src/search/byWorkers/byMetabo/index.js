@@ -1,5 +1,5 @@
-const general = require('./general');
 const eretic = require('./eretic');
+const general = require('./general');
 
 module.exports = {
   general,

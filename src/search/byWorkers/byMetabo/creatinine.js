@@ -1,1 +1,1 @@
-module.exports.creatinine = function(peaks, toSearch) {};
+module.exports.creatinine = function (peaks, toSearch) {};
